@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "=== Instalando Ferramentas de Recon (Subfinder + Httpx + Amass) ==="
+echo "=== Instalando Ferramentas de Recon (Subfinder + Httpx + Amass + Findomain) ==="
 
 # Verificar root
 if [ "$EUID" -ne 0 ]; then
@@ -12,7 +12,7 @@ fi
 apt update -qq
 
 # Instalar dependências
-apt install -y curl wget git
+apt install -y curl wget git unzip
 
 # Instalar Go (caso não esteja instalado)
 if ! command -v go &> /dev/null; then
@@ -41,7 +41,15 @@ go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
 echo "Instalando Amass..."
 go install -v github.com/owasp-amass/amass/v4/...@latest
 
-# Criar links simbólicos em /usr/local/bin
+# Instalar Findomain (Rust)
+echo "Instalando Findomain..."
+curl -LO https://github.com/findomain/findomain/releases/latest/download/findomain-linux.zip
+unzip -o findomain-linux.zip
+chmod +x findomain
+mv findomain /usr/local/bin/findomain
+rm findomain-linux.zip
+
+# Criar links simbólicos (Go tools)
 ln -sf $HOME/go/bin/subfinder /usr/local/bin/subfinder 2>/dev/null
 ln -sf $HOME/go/bin/httpx /usr/local/bin/httpx 2>/dev/null
 ln -sf $HOME/go/bin/amass /usr/local/bin/amass 2>/dev/null
@@ -62,11 +70,15 @@ echo "Amass:"
 amass -version
 
 echo ""
-echo "Caminhos das ferramentas:"
+echo "Findomain:"
+findomain -V
+
+echo ""
+echo "Caminhos:"
 echo "Subfinder → $(which subfinder)"
 echo "Httpx     → $(which httpx)"
 echo "Amass     → $(which amass)"
+echo "Findomain → $(which findomain)"
 
 echo ""
 echo "✅ Instalação concluída com sucesso!"
-echo "As três ferramentas estão disponíveis globalmente."

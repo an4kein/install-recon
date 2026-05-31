@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "=== Instalando Ferramentas de Recon (Subfinder + Httpx) ==="
+echo "=== Instalando Ferramentas de Recon (Subfinder + Httpx + Amass) ==="
 
 # Verificar root
 if [ "$EUID" -ne 0 ]; then
@@ -37,31 +37,36 @@ go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 echo "Instalando Httpx..."
 go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
 
+# Instalar Amass
+echo "Instalando Amass..."
+go install -v github.com/owasp-amass/amass/v4/...@latest
+
 # Criar links simbólicos em /usr/local/bin
-if [ -f "$HOME/go/bin/subfinder" ]; then
-    ln -sf $HOME/go/bin/subfinder /usr/local/bin/subfinder
-    echo "Subfinder instalado com sucesso!"
-fi
+ln -sf $HOME/go/bin/subfinder /usr/local/bin/subfinder 2>/dev/null
+ln -sf $HOME/go/bin/httpx /usr/local/bin/httpx 2>/dev/null
+ln -sf $HOME/go/bin/amass /usr/local/bin/amass 2>/dev/null
 
-if [ -f "$HOME/go/bin/httpx" ]; then
-    ln -sf $HOME/go/bin/httpx /usr/local/bin/httpx
-    echo "Httpx instalado com sucesso!"
-fi
-
-# Verificar instalações
+# Verificação das instalações
 echo ""
 echo "=== Verificação das Instalações ==="
-echo "Subfinder versão:"
+
+echo "Subfinder:"
 subfinder -version
 
 echo ""
-echo "Httpx versão:"
+echo "Httpx:"
 httpx -version
 
 echo ""
-echo "Caminhos:"
-echo "Subfinder → $(which subfinder)"
-echo "Httpx    → $(which httpx)"
+echo "Amass:"
+amass -version
 
 echo ""
-echo "Instalação concluída! As ferramentas estão disponíveis globalmente."
+echo "Caminhos das ferramentas:"
+echo "Subfinder → $(which subfinder)"
+echo "Httpx     → $(which httpx)"
+echo "Amass     → $(which amass)"
+
+echo ""
+echo "✅ Instalação concluída com sucesso!"
+echo "As três ferramentas estão disponíveis globalmente."
